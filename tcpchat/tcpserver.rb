@@ -13,14 +13,14 @@ class Server
         @socket = Socket.new(AF_INET, SOCK_STREAM, 0)
         sockaddress = Socket.pack_sockaddr_in(port,host)
         @socket.bind(sockaddress)
-
+        p "socket bound on #{host} #{port}"
         @users[0]=User.new(@socket, name, 'here')
         start()
     end
 
     def start
         @socket.listen(5)
-        p 'socket bound and listening'
+        p 'listening' 
         start_console()
         p 'console running'
         while(true) do
@@ -67,7 +67,7 @@ class Server
             begin
                 write_all(msg, user)
             rescue
-                p 'write all error'
+                p 'write error'
             end
         }
     end
@@ -82,16 +82,15 @@ class Server
                 cmd = $stdin.gets.chomp
                 if (/msg*/.match(cmd))
                     me = @users[0]
-                    p 'there'
                     msg =  (/msg(.*)/.match(cmd))
                     msg = me.name + msg[1]
-                    p 'here'
                     p msg
                     write_all(msg,me)
                 elsif(cmd == 'see')
-                    p "users: #{@users}"
-                    puts
-                    p "threads : #{@threads}"
+                    puts "users:"
+                    puts @users
+                    puts "threads:"
+                    puts  @threads
                 elsif(cmd == 'diss')
                     @users[1..-1].each{|user| user.client.close()}
                 elsif(cmd == 'myip')
@@ -105,31 +104,18 @@ class Server
         client.puts msg
     end
 
-def local_ip
-  orig, Socket.do_not_reverse_lookup = Socket.do_not_reverse_lookup, true  # turn off reverse DNS resolution temporarily
+    def local_ip
+        orig, Socket.do_not_reverse_lookup = Socket.do_not_reverse_lookup, true  # turn off reverse DNS resolution temporarily
 
-  UDPSocket.open do |s|
-    s.connect '64.233.187.99', 1
-    s.addr.last
-  end
-ensure
-  Socket.do_not_reverse_lookup = orig
-end
+        UDPSocket.open do |s|
+            s.connect '64.233.187.99', 1
+            s.addr.last
+        end
+        ensure
+            Socket.do_not_reverse_lookup = orig
+    end
 
 end
 
 
 server = Server.new(ARGV[0] || 9876,ARGV[1] || 'localhost')
-
-# server = TCPServer.new 8888
-
-# while(true) do
-#     p "waiting for connection"
-#     client = server.accept
-#     p client
-#     client.puts "in the server"
-#     client.puts "time: #{Time.now}"
-#     client.close
-# end
-
-# (ARGV[0] || 9876,ARGV[1] || 'localhost')

@@ -1,9 +1,24 @@
+
 require 'socket'
+require 'thread'
 
-s = TCPSocket.new 'localhost', 8888
+server = TCPSocket.new('localhost', 9876)
+p server
+server.write("HELLO FROM CLIENT")
 
-while line = s.gets # Read lines from socket
-  puts line         # and print them
+read = Thread.new(server) do |client|
+    while (client)
+        msg = client.gets.chomp;
+        puts msg
+    end
 end
 
-s.close  
+write = Thread.new(server) do |client|
+    while (client)
+        a = gets.chomp
+        client.write(a)
+    end
+end
+read.join
+write.join
+server.close

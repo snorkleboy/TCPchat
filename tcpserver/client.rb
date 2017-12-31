@@ -19,6 +19,7 @@ write = Thread.new(server) do |client|
         client.write(a)
     end
 end
-read.join
 write.join
+
+read.join
 server.close

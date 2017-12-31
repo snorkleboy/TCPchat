@@ -6,7 +6,8 @@ server.connect Socket.pack_sockaddr_in(ARGV[0] || 9876,ARGV[1] || 'localhost')
 connected = true;
 p "connected to : #{server}"
 
-server.puts("HELLO FROM CLIENT")
+# init_message = ARGV[2] || 'Anon'
+# server.puts(init_message)
 
 write = Thread.new(server) do |client|
     while(connected)
@@ -18,7 +19,7 @@ end
 read = Thread.new(server) do |client|
     while(connected)
         msg = client.gets.chomp;
-        puts "#{server} : #{msg}"
+        puts msg
     end
 end
 

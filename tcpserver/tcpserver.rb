@@ -1,6 +1,13 @@
 #!/usr/bin/env ruby
 
 require 'socket'
+server = TCPServer.new 8888
 
-s = Socket.new Socket::PF_INET, Socket::SOCK_STREAM
-s.connect Socket.pack_sockaddr_in(80, 'wel')
+while(true) do
+    p "waiting for connection"
+    client = server.accept
+    p client
+    client.puts "in the server"
+    client.puts "time: #{Time.now}"
+    client.close
+end

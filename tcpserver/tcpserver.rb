@@ -5,7 +5,7 @@ require 'thread'
 include Socket::Constants
 
 socket = Socket.new(AF_INET, SOCK_STREAM, 0)
-sockaddress = Socket.pack_sockaddr_in(12343, 'localhost')
+sockaddress = Socket.pack_sockaddr_in(6543, 'localhost')
 socket.bind(sockaddress)
 listen = socket.listen(5)
 

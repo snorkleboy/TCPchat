@@ -5,7 +5,7 @@ require 'thread'
 include Socket::Constants
 
 socket = Socket.new(AF_INET, SOCK_STREAM, 0)
-sockaddress = Socket.pack_sockaddr_in(6565, 'localhost')
+sockaddress = Socket.pack_sockaddr_in(12343, 'localhost')
 socket.bind(sockaddress)
 listen = socket.listen(5)
 
@@ -18,7 +18,7 @@ p 'waiting for connection'
         p "server accepted :#{connection}"
         client = connection[0]
 
-        client.write "HELLO FROM SERVER"
+        client.puts "HELLO FROM SERVER"
         read = Thread.new do 
             loop {
                 msg = client.gets.chomp

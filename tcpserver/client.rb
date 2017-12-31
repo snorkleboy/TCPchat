@@ -2,9 +2,9 @@
 require 'socket'
 require 'thread'
 
-server = TCPSocket.new('localhost', 6565)
+server = TCPSocket.new('localhost', 12343)
 p server
-server.write("HELLO FROM CLIENT")
+server.puts("HELLO FROM CLIENT")
 
 read = Thread.new(server) do |client|
     loop {

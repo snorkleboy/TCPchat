@@ -19,13 +19,14 @@ while (connected)
     write = Thread.new(server) do |client|
         loop {
             a = gets.chomp
-            client.puts(a)
+            
             if a =='q'
                 server.close
                 connected = false
                 p server
                 break
             end
+            client.puts(a)
         }
     end
 end

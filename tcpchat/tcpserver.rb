@@ -29,14 +29,14 @@ class Server
                 begin
                     user = handshake(connection)         
                 rescue
-                    p 'thread death:'
-                    p 'self'
+                    p 'handshake rescue:'
+                    p self
                     Thread.Kill self
                 end
                 read(user)
             end
+            @threads.push(thr)
         end
-        @threads.push(thr)
     end
     def handshake(connection)
         release = false
@@ -81,16 +81,21 @@ class Server
             loop {
                 cmd = $stdin.gets.chomp
                 if (/msg*/.match(cmd))
-                    a =@users[0].name +" " + /msg (.*)/.match(cmd)[1]
-                    write_all(a,@users[0])
+                    me = @users[0]
+                    p 'there'
+                    msg =  (/msg(.*)/.match(cmd))
+                    msg = me.name + msg[1]
+                    p 'here'
+                    p msg
+                    write_all(msg,me)
                 elsif(cmd == 'see')
-                    p @users
+                    p "users: #{@users}"
                     puts
-                    p @threads
-                    puts 
-                    p @socket
+                    p "threads : #{@threads}"
                 elsif(cmd == 'diss')
                     @users[1..-1].each{|user| user.client.close()}
+                elsif(cmd == 'myip')
+                    p local_ip
                 end
             }
         end
@@ -100,7 +105,16 @@ class Server
         client.puts msg
     end
 
+def local_ip
+  orig, Socket.do_not_reverse_lookup = Socket.do_not_reverse_lookup, true  # turn off reverse DNS resolution temporarily
 
+  UDPSocket.open do |s|
+    s.connect '64.233.187.99', 1
+    s.addr.last
+  end
+ensure
+  Socket.do_not_reverse_lookup = orig
+end
 
 end
 

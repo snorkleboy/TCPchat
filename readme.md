@@ -34,4 +34,5 @@ will be ouputed as 'serverName: your message.
 
 - chatrooms
 - better console commands
-- make basic app that responds
+- make it respond to a http get request
+- make a simple webapp as a gui for the server. 

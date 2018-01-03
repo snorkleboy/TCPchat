@@ -17,7 +17,6 @@ class Server
         @users[0]=User.new(@socket, name, 'here')
         start()
     end
-
     def start
         @socket.listen(5)
         p 'listening' 

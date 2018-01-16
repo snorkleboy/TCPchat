@@ -28,11 +28,15 @@ class Server
                 begin
                     user = handshake(connection)         
                 rescue
-                    p 'handshake rescue:'
+                    p 'handshake rescue: error'
                     p self
                     Thread.Kill self
                 end
-                read(user)
+                if (user)
+                    read(user)
+                else
+                    Thread.Kill self
+                end
             end
             @threads.push(thr)
         end
@@ -40,22 +44,58 @@ class Server
     def handshake(connection)
         release = false
         client = connection[0]
-        client.puts "welcome to Tchat"
+        http = false;
         while (!release)
-            client.puts "please enter a username. to see who is on enter 's'"
+            
             msg = client.gets.chomp
-            p "client handshake: #{msg}"
-            if (msg == 's')
-                client.puts "users : #{@users}"
-            else
+            if (msg[0..2] == 'GET')
+                p 'HTTP REQUEST!!!!!!!!!'
+                p msg
+                p 'HTTP REQUEST!!!!!!!!!'
+                
+                response = "Hello World!\n"
+
+                # We need to include the Content-Type and Content-Length headers
+                # to let the client know the size and type of data
+                # contained in the response. Note that HTTP is whitespace
+                # sensitive, and expects each header line to end with CRLF (i.e. "\r\n")
+                client.puts "HTTP/1.1 200 OK\r\n" +
+                            "Content-Type: text/plain\r\n" +
+                            "Content-Length: #{response.bytesize}\r\n" +
+                            "Connection: close\r\n"
+
+                # Print a blank line to separate the header from the response body,
+                # as required by the protocol.
+                client.puts "\r\n"
+
+                # Print the actual response body, which is just "Hello World!\n"
+                client.puts response
+
+                client.close();
                 release = true
-                user = User.new(client,msg,connection[1])
-                p "new user: #{user}"
-            end     
+                http = true;
+
+            else
+                client.puts "welcome to Tchat"
+                client.puts "please enter a username. to see who is on enter 's'"
+                p "client handshake: #{msg}"
+                if (msg == 's')
+                    client.puts "users : #{@users}"
+                else
+                    release = true
+                    user = User.new(client,msg,connection[1])
+                    p "new user: #{user}"
+                end 
+            end   
         end
-        @users.push(user)
-        user[:client].puts "currently connected: #{@users.map{|user| user[:name]}}"
-        return user
+        if !http
+            @users.push(user)
+            user[:client].puts "currently connected: #{@users.map{|user| user[:name]}}"
+            return user
+        else
+             puts 'here'
+            return false
+        end
     end
 
     def read(user)

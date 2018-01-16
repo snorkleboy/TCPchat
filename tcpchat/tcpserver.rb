@@ -22,6 +22,9 @@ class Server
         p 'listening' 
         start_console()
         p 'console running'
+        # on connection put new socket into new thread
+        # thread does 'handshake' which either returns HTTP and dissconnects or gets username from TCP cleint
+        # If tcpclient it reads and broadcasts messages from it, otherwise it closes the connection in handhsake and then kills the thread.
         while(true) do
             thr = Thread.start(@socket.accept) do |connection| 
                 p "server accepted :#{connection}"
@@ -52,9 +55,9 @@ class Server
             if (msg[0..2] == 'GET')
                 p msg
                 
-                response = "Hello World!\n"
+                response = "<h1>Hello World!</h1>\n"
                 client.puts "HTTP/1.1 200 OK\r\n" +
-                            "Content-Type: text/plain\r\n" +
+                            "Content-Type: text/HTML\r\n" +
                             "Content-Length: #{response.bytesize}\r\n" +
                             "Connection: close\r\n"
                 # Print a blank line to separate the header from the response body,
@@ -85,7 +88,6 @@ class Server
             user[:client].puts "currently connected: #{@users.map{|user| user[:name]}}"
             return user
         else
-             puts 'here'
             return false
         end
     end

@@ -14,7 +14,7 @@ class Server
         sockaddress = Socket.pack_sockaddr_in(port,host)
         @socket.bind(sockaddress)
         p "socket bound on #{host} #{port}"
-        @users[0]=User.new(@socket, name, 'here')
+        @users[0]=User.new(@socket, name)
         start()
     end
     def start
@@ -26,6 +26,8 @@ class Server
             thr = Thread.start(@socket.accept) do |connection| 
                 p "server accepted :#{connection}"
                 begin
+                    # hand shake looks at request, if its HTTP is sends response and returns false after closing the connection,
+                    # if its not HTTP it welcomes to TCPChat and asks for a user name, then returns a userStruct(@socket,name)
                     user = handshake(connection)         
                 rescue
                     p 'handshake rescue: error'
@@ -46,31 +48,21 @@ class Server
         client = connection[0]
         http = false;
         while (!release)
-            
             msg = client.gets.chomp
             if (msg[0..2] == 'GET')
-                p 'HTTP REQUEST!!!!!!!!!'
                 p msg
-                p 'HTTP REQUEST!!!!!!!!!'
                 
                 response = "Hello World!\n"
-
-                # We need to include the Content-Type and Content-Length headers
-                # to let the client know the size and type of data
-                # contained in the response. Note that HTTP is whitespace
-                # sensitive, and expects each header line to end with CRLF (i.e. "\r\n")
                 client.puts "HTTP/1.1 200 OK\r\n" +
                             "Content-Type: text/plain\r\n" +
                             "Content-Length: #{response.bytesize}\r\n" +
                             "Connection: close\r\n"
-
                 # Print a blank line to separate the header from the response body,
                 # as required by the protocol.
                 client.puts "\r\n"
-
                 # Print the actual response body, which is just "Hello World!\n"
                 client.puts response
-
+                puts "closing #{client} after HTTP response"
                 client.close();
                 release = true
                 http = true;
@@ -125,6 +117,11 @@ class Server
                     msg = me.name + msg[1]
                     p msg
                     write_all(msg,me)
+                elsif(cmd == '-h')
+                    puts "'msg 'message'; outputs everything after 'msg'"
+                    puts "'see' ; outputs user and threads arrays"
+                    puts "'diss'; disconnects all users"
+                    puts "'myip'; outputs the IP adress of machine" 
                 elsif(cmd == 'see')
                     puts "users:"
                     puts @users

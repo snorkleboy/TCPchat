@@ -31,7 +31,8 @@ class Server
                 begin
                     # hand shake looks at request, if its HTTP is sends response and returns false after closing the connection,
                     # if its not HTTP it welcomes to TCPChat and asks for a user name, then returns a userStruct(@socket,name)
-                    user = handshake(connection)         
+                    user = handshake(connection)    
+                    puts user     
                 rescue
                     p 'handshake rescue: error'
                     p self
@@ -50,28 +51,30 @@ class Server
         release = false
         client = connection[0]
         http = false;
-        while (!release)
-            msg = client.gets.chomp
-            if (msg[0..2] == 'GET')
-                p msg
-                
-                response = "<h1>Hello World!</h1>\n"
-                client.puts "HTTP/1.1 200 OK\r\n" +
-                            "Content-Type: text/HTML\r\n" +
-                            "Content-Length: #{response.bytesize}\r\n" +
-                            "Connection: close\r\n"
-                # Print a blank line to separate the header from the response body,
-                # as required by the protocol.
-                client.puts "\r\n"
-                # Print the actual response body, which is just "Hello World!\n"
-                client.puts response
-                puts "closing #{client} after HTTP response"
-                client.close();
-                release = true
-                http = true;
+        
+        msg = client.gets.chomp
+        if (msg[0..2] == 'GET')
+            p msg
+            
+            response = "<h1>Hello World!</h1>\n"
+            client.puts "HTTP/1.1 200 OK\r\n" +
+                        "Content-Type: text/HTML\r\n" +
+                        "Content-Length: #{response.bytesize}\r\n" +
+                        "Connection: close\r\n"
+            # Print a blank line to separate the header from the response body,
+            # as required by the protocol.
+            client.puts "\r\n"
+            # Print the actual response body, which is just "Hello World!\n"
+            client.puts response
+            puts "closing #{client} after HTTP response"
+            client.close();
+            release = true
+            http = true;
 
-            else
-                client.puts "welcome to Tchat"
+        else
+            client.puts "welcome to Tchat"
+            while (!release)
+                
                 client.puts "please enter a username. to see who is on enter 's'"
                 p "client handshake: #{msg}"
                 if (msg == 's')
@@ -81,8 +84,8 @@ class Server
                     user = User.new(client,msg,connection[1])
                     p "new user: #{user}"
                 end 
-            end   
-        end
+            end
+        end   
         if !http
             @users.push(user)
             user[:client].puts "currently connected: #{@users.map{|user| user[:name]}}"

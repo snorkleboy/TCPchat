@@ -1,1 +1,1 @@
-web: bundle exec ruby tcpserver.rb
+web: bundle exec puma -C config/puma.rb config.ru

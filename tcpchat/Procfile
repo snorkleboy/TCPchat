@@ -1,1 +1,1 @@
-web: rake tcpserver.rb 9999
+web: bundle exec ruby tcpserver.rb
